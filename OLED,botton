@@ -1,0 +1,47 @@
+# 128*64 OLED IIC
+# GND
+# VCC
+# SCL = Pin 5
+# SDA = Pin 4
+# botton_up Pin 12,GND
+#
+import time
+from machine import I2C, Pin
+from ssd1306 import SSD1306_I2C
+
+oled = None
+
+i2c = I2C(scl=Pin(5), sda=Pin(4))
+addr = i2c.scan()
+oled = SSD1306_I2C(128, 64, i2c, addr=addr[0])
+
+#按键pin12
+botton_up = Pin(12,Pin.IN,Pin.PULL_UP)
+menu_items = ['Play','Setting','Look_for','About_us']
+#记录当前位置
+cureet_item = 0
+
+def display_menu(index):
+    oled.fill(0)
+    oled.text("MENU", 45, 2)
+    oled.text('-'*20,0,10)
+    for i in range(len(menu_items)):
+        if i==index:
+            oled.text('> '+menu_items[i],0,20+i*12)
+            m = 10
+#             for m in range(55):
+#                 oled.pixel(m,20+i*11+9,1)
+        else:
+            oled.text('  '+menu_items[i],0,20+i*12)
+    oled.show()
+    
+
+while True:
+    if not botton_up.value():
+        cureet_item = (cureet_item + 1)%len(menu_items)
+        display_menu(cureet_item)
+    else:
+         display_menu(cureet_item)
+    time.sleep(0.2)
+
+
